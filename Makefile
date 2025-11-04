@@ -1,4 +1,4 @@
-# Makefile for Enhanced Super Mario Platformer
+# Makefile
 
 CXX = g++
 CXXFLAGS = -Wall -O2 -std=c++11
@@ -8,8 +8,11 @@ LDFLAGS = -lGL -lGLU -lglut -lm
 SOURCES = main.cpp game.cpp player.cpp platform.cpp collectible.cpp \
           particle.cpp graphics.cpp renderer.cpp
 
-# Object files
-OBJECTS = $(SOURCES:.cpp=.o)
+# Object file directory
+OBJDIR = dest
+
+# Object files (placed inside dest/)
+OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
 
 # Executable name
 TARGET = pixel_hero
@@ -21,13 +24,17 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
 
-# Compile source files to object files
-%.o: %.cpp
+# Ensure dest directory exists, then compile
+$(OBJDIR)/%.o: %.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Create object directory if missing
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 # Clean build files
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -rf $(OBJDIR) $(TARGET)
 
 # Run the game
 run: $(TARGET)

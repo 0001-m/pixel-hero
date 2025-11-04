@@ -92,7 +92,7 @@ void plotCirclePoints(int xc, int yc, int x, int y) {
 void drawCircleMidpoint(int xc, int yc, int r, Color color, bool filled) {
     glColor4f(color.r, color.g, color.b, color.a);
 
-    // Optional: Filled circle (unchanged)
+    //  Filled circle
     if (filled) {
         for (int y = -r; y <= r; y++) {
             int x = (int)sqrt(r * r - y * y);
@@ -106,7 +106,7 @@ void drawCircleMidpoint(int xc, int yc, int r, Color color, bool filled) {
 
     int x = 0;
     int y = r;
-    int p = 1 - r;   // Initial decision parameter (from textbook)
+    int p = 1 - r;   // Initial decision parameter
 
     glPointSize(2.0f);
     glBegin(GL_POINTS);
@@ -117,11 +117,11 @@ void drawCircleMidpoint(int xc, int yc, int r, Color color, bool filled) {
         x++;
         if (p < 0) {
             // Midpoint is inside the circle
-            p = p + 2 * x + 1;
+            p = p + 2 * x + 3;
         } else {
             // Midpoint is outside or on the circle
             y--;
-            p = p + 2 * (x - y) + 1;
+            p = p + 2 * (x - y) + 5;
         }
         plotCirclePoints(xc, yc, x, y);
     }
@@ -163,35 +163,20 @@ void drawCircleBresenham(int xc, int yc, int r, Color color, bool filled) {
     }
 
     int x = 0, y = r;
-    int delta = abs(2 * (r - 1));
-    int smallDel;
+    int d = 3 - 2 * r;
 
     glPointSize(2.0f);
 
     while (y >= x) {
         drawCirclePointsGL(xc, yc, x, y, color.r, color.g, color.b);
 
-        if (delta < 0) {
-            smallDel = 2 * delta + 2 * y - 1;
-            if (smallDel <= 0) {
-                x++;
-                delta = delta + 2 * x + 1;
-            } else {
-                x++;
-                y--;
-                delta = delta + 2 * x - 2 * y + 2;
-            }
-        } else {
-            smallDel = 2 * delta + 2 * x - 1;
-            if (smallDel <= 0) {
-                x++;
-                y--;
-                delta = delta + 2 * x - 2 * y + 2;
-            } else {
-                y--;
-                delta = delta - 2 * y - 1;
-            }
+        if (d < 0)
+            d = d + 4 * x + 6;
+        else {
+            d = d + 4 * (x - y) + 10;
+            y--;
         }
+        x++;
     }
 
     glPointSize(1.0f);
@@ -286,7 +271,7 @@ void scanLineFill(std::vector<Point>& vertices, Color fillColor, Color gradientC
     }
 }
 
-// Compute region code for a point (textbook version)
+// Compute region code for a point
 int computeOutCode(float x, float y, float xmin, float ymin, float xmax, float ymax) {
     int code = INSIDE;
 
@@ -299,7 +284,7 @@ int computeOutCode(float x, float y, float xmin, float ymin, float xmax, float y
     return code;
 }
 
-// Cohen–Sutherland Line Clipping (textbook version)
+// Cohen–Sutherland Line Clipping
 bool cohenSutherlandClip(float& x1, float& y1, float& x2, float& y2,
                          float xmin, float ymin, float xmax, float ymax) {
     int outcode1 = computeOutCode(x1, y1, xmin, ymin, xmax, ymax);
