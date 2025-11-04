@@ -28,7 +28,7 @@ void Renderer::drawBackground(float cameraX) {
     // Draw sun
     float sunX = 800 - cameraX * 0.1f;
     float sunY = 600 + sin(gameTime) * 5;
-    drawCircleMidpoint(sunX, sunY, 30, Color(1.0f, 0.9f, 0.3f), true);
+    drawCircleBresenham(sunX, sunY, 30, Color(1.0f, 0.9f, 0.3f), true);
     
     // Sun rays
     for (int i = 0; i < 8; i++) {
@@ -67,11 +67,12 @@ void Renderer::drawPlayer(const Player& player, float cameraX) {
         Point(screenX - 12 * abs(scaleX), drawY + 18 * scaleY)
     };
     
-    scanLineFill(playerVertices, player.color, Color(1.0f, 0.6f, 0.6f), true);
-    
     // Draw outline
     drawLineBresenham(screenX - 12 * abs(scaleX), drawY - 18 * scaleY, 
                      screenX + 12 * abs(scaleX), drawY - 18 * scaleY, Color(0.2f, 0.1f, 0.1f), 2);
+
+    scanLineFill(playerVertices, player.color, Color(1.0f, 0.6f, 0.6f), true);
+    
     
     // Draw eyes
     float eyeOffset = sin(player.animationTimer) * 0.5f;
@@ -106,15 +107,20 @@ void Renderer::drawPlatforms(const std::vector<Platform>& platforms, float camer
                 std::min(1.0f, platform.color.g + 0.3f),
                 std::min(1.0f, platform.color.b + 0.3f)
             );
-            
-            scanLineFill(platformVertices, platform.color, lightColor, true);
-            
+
             // Platform outline
-            drawLineDDA(screenX, platform.y, screenX + platform.width, platform.y, Color(0.1f, 0.1f, 0.1f));
-            drawLineDDA(screenX + platform.width, platform.y, screenX + platform.width, platform.y + platform.height, Color(0.1f, 0.1f, 0.1f));
+            Color edgeColor(0.1f, 0.1f, 0.1f);
+            drawLineDDA(screenX, platform.y, screenX + platform.width, platform.y, edgeColor);                        // top
+            drawLineDDA(screenX + platform.width, platform.y, screenX + platform.width, platform.y + platform.height, edgeColor); // right
+            drawLineDDA(screenX + platform.width, platform.y + platform.height, screenX, platform.y + platform.height, edgeColor); // bottom
+            drawLineDDA(screenX, platform.y + platform.height, screenX, platform.y, edgeColor);                       // left
+            
+            // Then fill the platform
+            scanLineFill(platformVertices, platform.color, lightColor, true);
         }
     }
 }
+
 
 void Renderer::drawCollectibles(const std::vector<Collectible>& collectibles, float cameraX) {
     for (const auto& coin : collectibles) {
@@ -158,7 +164,7 @@ void Renderer::drawParticles(const std::vector<Particle>& particles, float camer
 void Renderer::drawUI(int score, const Player& player) {
     glColor3f(1.0f, 1.0f, 1.0f);
     
-    glRasterPos2f(10, WINDOW_HEIGHT - 25);
+    glRasterPos2f(20, WINDOW_HEIGHT - 25);
     std::string scoreText = "Score: " + std::to_string(score);
     for (char c : scoreText) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
@@ -168,17 +174,5 @@ void Renderer::drawUI(int score, const Player& player) {
     std::string jumpInfo = "Jumps: " + std::to_string(player.maxJumps - player.jumpCount) + "/" + std::to_string(player.maxJumps);
     for (char c : jumpInfo) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-    }
-    
-    glRasterPos2f(10, WINDOW_HEIGHT - 75);
-    std::string algorithms = "Algorithms: DDA, Bresenham, Midpoint Circle, Scan Fill, 2D Transform, Clipping";
-    for (char c : algorithms) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    glRasterPos2f(10, WINDOW_HEIGHT - 95);
-    std::string controls = "Controls: A/D-Move, W/Space-Jump (Double Jump!), ESC-Exit";
-    for (char c : controls) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
     }
 }

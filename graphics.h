@@ -11,6 +11,7 @@ void drawLineBresenham(int x1, int y1, int x2, int y2, Color color, int thicknes
 // Circle drawing
 void drawCircleMidpoint(int centerX, int centerY, int radius, Color color, bool filled = false);
 
+void drawCircleBresenham(int xc, int yc, int r, Color color, bool filled= false);
 // Fill algorithms
 void scanLineFill(std::vector<Point>& vertices, Color fillColor, 
                   Color gradientColor = Color(), bool useGradient = false);

@@ -92,7 +92,65 @@ void plotCirclePoints(int xc, int yc, int x, int y) {
 void drawCircleMidpoint(int xc, int yc, int r, Color color, bool filled) {
     glColor4f(color.r, color.g, color.b, color.a);
 
-    // Optional: Filled circle
+    // Optional: Filled circle (unchanged)
+    if (filled) {
+        for (int y = -r; y <= r; y++) {
+            int x = (int)sqrt(r * r - y * y);
+            glBegin(GL_LINES);
+            glVertex2i(xc - x, yc + y);
+            glVertex2i(xc + x, yc + y);
+            glEnd();
+        }
+        return;
+    }
+
+    int x = 0;
+    int y = r;
+    int p = 1 - r;   // Initial decision parameter (from textbook)
+
+    glPointSize(2.0f);
+    glBegin(GL_POINTS);
+
+    plotCirclePoints(xc, yc, x, y);
+
+    while (x <= y) {
+        x++;
+        if (p < 0) {
+            // Midpoint is inside the circle
+            p = p + 2 * x + 1;
+        } else {
+            // Midpoint is outside or on the circle
+            y--;
+            p = p + 2 * (x - y) + 1;
+        }
+        plotCirclePoints(xc, yc, x, y);
+    }
+
+    glEnd();
+    glPointSize(1.0f);
+}
+
+
+// Bresenham Circle Helper Function
+void drawCirclePointsGL(int xc, int yc, int x, int y, float r, float g, float b) {
+    glColor3f(r, g, b);
+    glBegin(GL_POINTS);
+    glVertex2f(xc + x, yc + y);
+    glVertex2f(xc - x, yc + y);
+    glVertex2f(xc + x, yc - y);
+    glVertex2f(xc - x, yc - y);
+    glVertex2f(xc + y, yc + x);
+    glVertex2f(xc - y, yc + x);
+    glVertex2f(xc + y, yc - x);
+    glVertex2f(xc - y, yc - x);
+    glEnd();
+}
+
+
+void drawCircleBresenham(int xc, int yc, int r, Color color, bool filled) {
+    glColor4f(color.r, color.g, color.b, color.a);
+
+    // Filled circle
     if (filled) {
         for (int y = -r; y <= r; y++) {
             int x = (int)sqrt(r * r - y * y);
@@ -105,27 +163,41 @@ void drawCircleMidpoint(int xc, int yc, int r, Color color, bool filled) {
     }
 
     int x = 0, y = r;
-    int p = 1 - r;
+    int delta = abs(2 * (r - 1));
+    int smallDel;
 
     glPointSize(2.0f);
-    glBegin(GL_POINTS);
 
-    plotCirclePoints(xc, yc, x, y);
+    while (y >= x) {
+        drawCirclePointsGL(xc, yc, x, y, color.r, color.g, color.b);
 
-    while (x < y) {
-        x++;
-        if (p < 0) {
-            p += 2 * x + 1;
+        if (delta < 0) {
+            smallDel = 2 * delta + 2 * y - 1;
+            if (smallDel <= 0) {
+                x++;
+                delta = delta + 2 * x + 1;
+            } else {
+                x++;
+                y--;
+                delta = delta + 2 * x - 2 * y + 2;
+            }
         } else {
-            y--;
-            p += 2 * (x - y) + 1;
+            smallDel = 2 * delta + 2 * x - 1;
+            if (smallDel <= 0) {
+                x++;
+                y--;
+                delta = delta + 2 * x - 2 * y + 2;
+            } else {
+                y--;
+                delta = delta - 2 * y - 1;
+            }
         }
-        plotCirclePoints(xc, yc, x, y);
     }
 
-    glEnd();
     glPointSize(1.0f);
 }
+
+
 
 struct Edge {
     float x;
@@ -240,7 +312,7 @@ bool cohenSutherlandClip(float& x1, float& y1, float& x2, float& y2,
             accept = true;
             break;
         } else if (outcode1 & outcode2) {
-            // Both points share an outside zone → reject
+            // Both points share an outside zone - reject
             break;
         } else {
             // Line needs clipping

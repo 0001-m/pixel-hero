@@ -77,17 +77,7 @@ void init() {
 
 void printInstructions() {
     std::cout << "==================================================================" << std::endl;
-    std::cout << "   ENHANCED SUPER MARIO PLATFORMER - COMPUTER GRAPHICS DEMO" << std::endl;
-    std::cout << "==================================================================" << std::endl;
-    std::cout << "IMPLEMENTED ALGORITHMS & FEATURES:" << std::endl;
-    std::cout << "• DDA Line Drawing - Platform outlines & sun rays" << std::endl;
-    std::cout << "• Bresenham Line Drawing - Player outlines & highlights" << std::endl;
-    std::cout << "• Midpoint Circle Drawing - Player, coins, clouds, sun" << std::endl;
-    std::cout << "• Scan Line Fill - Gradient fills for all objects" << std::endl;
-    std::cout << "• 2D Transformations - Squash/stretch animations" << std::endl;
-    std::cout << "• Cohen-Sutherland Clipping - Viewport culling" << std::endl;
-    std::cout << "• Particle Systems - Visual effects" << std::endl;
-    std::cout << "• Moving Platforms - Sine wave motion" << std::endl;
+    std::cout << "   PIXEL HERO" << std::endl;
     std::cout << "==================================================================" << std::endl;
     std::cout << "CONTROLS:" << std::endl;
     std::cout << "• A/D or Arrow Keys - Move left/right" << std::endl;
@@ -101,7 +91,7 @@ int main(int argc, char** argv) {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_ALPHA);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow("Enhanced Super Mario Platformer");
+    glutCreateWindow("PIXEL HERO");
     
     init();
     printInstructions();
